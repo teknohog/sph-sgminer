@@ -42,6 +42,7 @@ sgminer_SOURCES += ocl.c ocl.h
 sgminer_SOURCES += findnonce.c findnonce.h
 sgminer_SOURCES += adl.c adl.h adl_functions.h
 sgminer_SOURCES += scrypt.c scrypt.h
+sgminer_SOURCES += scrypt-jane.c scrypt-jane.h
 sgminer_SOURCES += kernel/*.cl
 
 bin_SCRIPTS	= $(top_srcdir)/kernel/*.cl

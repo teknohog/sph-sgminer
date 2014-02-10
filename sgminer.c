@@ -55,6 +55,7 @@ char *curly = ":D";
 #include "driver-opencl.h"
 #include "bench_block.h"
 #include "scrypt.h"
+#include "scrypt-jane.h"
 
 #if defined(unix) || defined(__APPLE__)
 	#include <errno.h>
@@ -95,6 +96,12 @@ int opt_expiry = 28;
 static const bool opt_time = true;
 unsigned long long global_hashrate;
 unsigned long global_quota_gcd = 1;
+
+/* scrypt-jane, defaults suitable for YAC */
+unsigned int sj_minNf = 4;
+unsigned int sj_maxNf = 30;
+unsigned int sj_startTime = 1388361600;
+bool opt_scrypt_jane;
 
 int nDevs;
 int opt_dynamic_interval = 7;
@@ -609,6 +616,11 @@ static char *set_int_0_to_10(const char *arg, int *i)
 static char *set_int_1_to_10(const char *arg, int *i)
 {
 	return set_int_range(arg, i, 1, 10);
+}
+
+static char *set_int_0_to_40(const char *arg, int *i)
+{
+	return set_int_range(arg, i, 0, 40);
 }
 
 void get_intrange(char *arg, int *val1, int *val2)
@@ -1267,6 +1279,18 @@ static struct opt_table opt_config_table[] = {
 	OPT_WITH_ARG("--sched-stop",
 		     set_schedtime, NULL, &schedstop,
 		     "Set a time of day in HH:MM to stop mining (will quit without a start time)"),
+	OPT_WITHOUT_ARG("--scrypt-jane",
+			opt_set_bool, &opt_scrypt_jane,
+			"Use the scrypt-jane algorithm for mining"),
+	OPT_WITH_ARG("--sj-nfmin",
+			set_int_0_to_40, opt_show_intval, &sj_minNf,
+			"Set min N factor for mining scrypt-jane"),
+	OPT_WITH_ARG("--sj-nfmax",
+			set_int_0_to_40, opt_show_intval, &sj_maxNf,
+			"Set max N factor for mining scrypt-jane"),
+	OPT_WITH_ARG("--sj-time",
+			opt_set_intval, opt_show_intval, &sj_startTime,
+			"Set StartTime for mining scrypt-jane"),
 	OPT_WITH_ARG("--shaders",
 		     set_shaders, NULL, NULL,
 		     "GPU shaders per card for tuning scrypt, comma separated"),
@@ -3573,8 +3597,19 @@ static uint64_t share_diff(const struct work *work)
 	return ret;
 }
 
-static bool cnx_needed(struct pool *pool);
+static void rebuild_hash(struct work *work)
+{
+	if (opt_scrypt_jane) {
+		/* scrypt-jane */
+		sj_scrypt_regenhash(work);
+	} else {
+		/* standard scrypt */
+		scrypt_regenhash(work);
+	}
+}
 
+
+static bool cnx_needed(struct pool *pool);
 /* Find the pool that currently has the highest priority */
 static struct pool *priority_pool(int choice)
 {
@@ -4201,6 +4236,9 @@ void write_config(FILE *fcfg)
 					break;
 				case KL_ZUIKKIS:
 					fprintf(fcfg, ZUIKKIS_KERNNAME);
+					break;
+				case KL_SCRYPT_JANE:
+					fprintf(fcfg, "scrypt-jane");
 					break;
 			}
 		}

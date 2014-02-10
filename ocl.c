@@ -407,8 +407,14 @@ _clState *initCl(unsigned int gpu, char *name, size_t nameSize)
 	char numbuf[16];
 
 	if (cgpu->kernel == KL_NONE) {
-		applog(LOG_INFO, "Selecting kernel ckolivas");
-		clState->chosen_kernel = KL_CKOLIVAS;
+		if (opt_scrypt_jane) {
+			applog(LOG_INFO, "Selected scrypt-jane kernel");
+			clState->chosen_kernel = KL_SCRYPT_JANE;
+		} else {
+			applog(LOG_INFO, "Selecting kernel ckolivas");
+			clState->chosen_kernel = KL_CKOLIVAS;
+		}
+
 		cgpu->kernel = clState->chosen_kernel;
 	} else {
 		clState->chosen_kernel = cgpu->kernel;
@@ -454,6 +460,9 @@ _clState *initCl(unsigned int gpu, char *name, size_t nameSize)
 			/* Kernel only supports worksize 256 */
 			cgpu->work_size = 256;
 			break;
+		case KL_SCRYPT_JANE:
+			strcpy(filename, SCRYPT_JANE_KERNNAME".cl");
+			strcpy(binaryfilename, SCRYPT_JANE_KERNNAME);
 		case KL_NONE: /* Shouldn't happen */
 			break;
 	}
