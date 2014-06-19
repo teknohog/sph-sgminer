@@ -4267,6 +4267,9 @@ void write_config(FILE *fcfg)
 				case KL_GROESTLCOIN:
 					fprintf(fcfg, GROESTLCOIN_KERNNAME);
 					break;
+				case KL_PRIMIO:
+					fprintf(fcfg, PRIMIO_KERNNAME);
+					break;
 				case KL_SIFCOIN:
 					fprintf(fcfg, SIFCOIN_KERNNAME);
 					break;
@@ -5927,7 +5930,7 @@ static void gen_stratum_work(struct pool *pool, struct work *work)
 	cg_dwlock(&pool->data_lock);
 
 	/* Generate merkle root */
-	if (gpus[0].kernel == KL_FUGUECOIN || gpus[0].kernel == KL_GROESTLCOIN || gpus[0].kernel == KL_TWECOIN)
+	if (gpus[0].kernel == KL_FUGUECOIN || gpus[0].kernel == KL_GROESTLCOIN || gpus[0].kernel == KL_PRIMIO || gpus[0].kernel == KL_TWECOIN)
 		sha256(pool->coinbase, pool->swork.cb_len, merkle_root);
 	else
 		gen_hash(pool->coinbase, merkle_root, pool->swork.cb_len);
@@ -6106,6 +6109,9 @@ static void rebuild_nonce(struct work *work, uint32_t nonce)
 			break;
 		case KL_GROESTLCOIN:
 			groestlcoin_regenhash(work);
+			break;
+		case KL_PRIMIO:
+			primio_regenhash(work);
 			break;
 		case KL_SIFCOIN:
 			sifcoin_regenhash(work);

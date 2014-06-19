@@ -494,6 +494,11 @@ _clState *initCl(unsigned int gpu, char *name, size_t nameSize)
 			strcpy(filename, GROESTLCOIN_KERNNAME".cl");
 			strcpy(binaryfilename, GROESTLCOIN_KERNNAME);
 			break;
+		case KL_PRIMIO:
+			applog(LOG_WARNING, "Kernel primio is experimental.");
+			strcpy(filename, PRIMIO_KERNNAME".cl");
+			strcpy(binaryfilename, PRIMIO_KERNNAME);
+			break;
 		case KL_SIFCOIN:
 			applog(LOG_WARNING, "Kernel sifcoin is experimental.");
 			strcpy(filename, SIFCOIN_KERNNAME".cl");
