@@ -127,6 +127,7 @@ bool opt_fail_only;
 int opt_fail_switch_delay = 60;
 static bool opt_fix_protocol;
 static bool opt_lowmem;
+static bool opt_tjcoin;
 bool opt_autofan;
 bool opt_autoengine;
 bool opt_noadl;
@@ -1216,6 +1217,9 @@ static struct opt_table opt_config_table[] = {
 	OPT_WITHOUT_ARG("--lowmem",
 			opt_set_bool, &opt_lowmem,
 			"Minimise caching of shares for low memory applications"),
+	OPT_WITHOUT_ARG("--tjcoin",
+			opt_set_bool, &opt_tjcoin,
+			"Correct Merkle root for Tjcoin (Primio kernel)"),
 #if defined(unix) || defined(__APPLE__)
 	OPT_WITH_ARG("--monitor|-m",
 		     opt_set_charp, NULL, &opt_stderr_cmd,
@@ -5930,7 +5934,7 @@ static void gen_stratum_work(struct pool *pool, struct work *work)
 	cg_dwlock(&pool->data_lock);
 
 	/* Generate merkle root */
-	if (gpus[0].kernel == KL_FUGUECOIN || gpus[0].kernel == KL_GROESTLCOIN || gpus[0].kernel == KL_PRIMIO || gpus[0].kernel == KL_TWECOIN)
+	if (gpus[0].kernel == KL_FUGUECOIN || gpus[0].kernel == KL_GROESTLCOIN || (gpus[0].kernel == KL_PRIMIO && ! opt_tjcoin) || gpus[0].kernel == KL_TWECOIN)
 		sha256(pool->coinbase, pool->swork.cb_len, merkle_root);
 	else
 		gen_hash(pool->coinbase, merkle_root, pool->swork.cb_len);
