@@ -3,7 +3,7 @@ Primio / TjcoinV2 / JH-256 kernel
 
 by teknohog -- http://iki.fi/teknohog/contact.php
 
-## Solo mining
+## General info and solo mining
 
 Simply use the "primio" kernel. This works for any coin that uses JH-256 as the proof of work, including Primio and TjcoinV2.
 
